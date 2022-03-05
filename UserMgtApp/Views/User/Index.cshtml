@@ -1,0 +1,1684 @@
+﻿@{
+    ViewData["Title"] = "Users";
+}
+
+<style>
+
+    .table .table-tr2 .table-header2 {
+        font-weight: bold;
+        /*vertical-align: middle;
+        padding: 4px;
+        height: 10px;
+        font-size: 11px;
+        text-align: center;*/
+    }
+
+    .table .table-tr2 .table-data2 {
+        vertical-align: middle;
+        padding: 4px;
+        height: 10px;
+        font-size: 12px;
+    }
+
+    .table .table-tr2 .table-data3 {
+        vertical-align: middle;
+        padding: 4px;
+        height: 10px;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .table-field-data {
+        height: 25px;
+        font-size: 12px;
+    }
+</style>
+
+
+<div class="text-center">
+    <h2>Users List</h2>
+    <img src="~/img/green_style.gif" alt='wait_img' id="imgWaitLoadUsers" width='18' height='18' />
+</div>
+
+<br />
+<div class="row">
+
+    <div class="col-md-12">
+
+        <!-- in case there is an error while loading users -->
+        <div id="divErrorMsg"></div>
+
+        <input type="button" value="Add New User" class="btn btn-success btn-sm" id="btnAddNewUser" onclick="ShowAddNewUserPopUp()" />
+        <img src="~/img/green_style.gif" alt='wait_img' id="imgWaitMyModalAddNewUser" width='18' height='18' hidden="hidden" />
+        <input type="button" value="Delete Selected Users" class="btn btn-danger btn-sm" id="btnDeleteSelectedUsers" onclick="DeleteUsers()" />
+        <img src="~/img/green_style.gif" alt='wait_img' id="imgWaitDeleteUsers" width='18' height='18' />
+        <br /><br />
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="tableUsers">
+                <thead>
+                    <tr class="table-tr2">
+                        <td><input type="checkbox" id="chkBoxSelectAll" onchange="javascript: ToggleChkBoxSelectAll()" /></td>
+                        <td class="table-header2">Sn</td>
+                        <td class="table-header2">First Name</td>
+                        <td class="table-header2">Last Name</td>
+                        <td class="table-header2">Email</td>
+                        <td class="table-header2">Phone No</td>
+                        <td class="table-header2">Gender</td>
+                        <td class="table-header2">Date Of Birth</td>
+                        <td class="table-header2">Nationality Id</td>
+                        <td class="table-header2">User Type Id</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyUsers">
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- modal pop up to assign request -->
+<div id="myModal_AddNewUser" class="modal fade" role="dialog">
+
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times"></i></button>
+                <h4 class="modal-title" style="text-align:center; font-weight:bold">Add New User</h4>
+            </div>
+            <div class="modal-body">
+                <div style="height:400px; overflow-y:scroll;">
+
+                    <!-- in case there is an error while showing pop up to -->
+                    <div id="divMyModalAddNewUserErrorMsg"></div>
+
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="txtFirstName" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="txtLastName" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="text" id="txtEmail" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>PhoneNo</label>
+                        <input type="text" id="txtPhoneNo" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="drpGender" class="form-control">
+                            <option value="">SELECT</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Of Birth</label>
+                        <input type="date" id="txtDob" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Nationality</label>
+                        <select id="drpNationality" class="form-control">
+                            @*<option value="">SELECT TEAM</option>*@
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>User Type</label>
+                        <select id="drpUserType" class="form-control">
+                            @*<option value="">SELECT</option>*@
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="button" id="btnAddUser" value="Submit" class="btn btn-primary btn-sm" onclick="javascript: AddUser()" />
+                        <img src='../img/green_style.gif' alt='wait_img' width='18' height='18' id='imgWaitAddUser' hidden="hidden" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal pop up to assign request -->
+<div id="myModal_UpdateUser" class="modal fade" role="dialog">
+
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times"></i></button>
+                <h4 class="modal-title" style="text-align:center; font-weight:bold">Update User</h4>
+            </div>
+            <div class="modal-body">
+                <div style="height:400px; overflow-y:scroll;">
+
+                    <input type="hidden" id="hiddenUserId" />
+
+                    <!-- in case there is an error while showing pop up to -->
+                    <div id="divMyModalUpdateUserErrorMsg"></div>
+
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="txtFirstName_UpdateUser" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="txtLastName_UpdateUser" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="text" id="txtEmail_UpdateUser" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>PhoneNo</label>
+                        <input type="text" id="txtPhoneNo_UpdateUser" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="drpGender_UpdateUser" class="form-control">
+                            <option value="">SELECT</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Of Birth</label>
+                        <input type="date" id="txtDob_UpdateUser" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label>Nationality</label>
+                        <select id="drpNationality_UpdateUser" class="form-control">
+                            @*<option value="">SELECT TEAM</option>*@
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>User Type</label>
+                        <select id="drpUserType_UpdateUser" class="form-control">
+                            @*<option value="">SELECT</option>*@
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="button" id="btnUpdateUser" value="Update" class="btn btn-primary btn-sm" onclick="javascript: UpdateUser()" />
+                        <img src='../img/green_style.gif' alt='wait_img' width='18' height='18' id='imgWaitUpdateUser' hidden="hidden" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts
+{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $('#imgWaitLoadUsers').hide(); //for loading users
+            $('#imgWaitDeleteUsers').hide(); //for deleting users
+
+            //load users
+            LoadUsers();
+
+            //Datepicker Popups calender to Choose date.
+            //$('#txtDob').datepicker();
+            //$('#txtDob').datepicker("option", "dateFormat", "dd/mm/yy");
+
+            ////alert('id');
+            //$('#tablePending').dataTable({ searching: true, paging: true, info: false });
+
+        });
+
+        function LoadUsers() {
+            try {
+
+                //show image
+                $('#imgWaitLoadUsers').show();
+
+                $('#tableBodyUsers').empty();
+                $('#divErrorMsg').empty();
+
+                $('#btnDeleteSelectedUsers').hide();
+
+                jQuery.ajax({
+                    url: '../User/GetAllUsers',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'get',
+                    //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                    success: function (data) {
+
+                        try {
+
+                            //alert('Call was successful');
+
+                            var success = data['Success'];
+                            var message = data['Message'];
+                            var result = data['Result'];
+
+                            if (success == false) {
+
+                                //hide image
+                                $('#imgWaitLoadUsers').hide();
+
+                                if (message != null && message != '') {
+
+                                    //alert(errorMsg);
+                                    var msg = '<p style="color: red;">';
+                                    msg += message;
+                                    msg += '</p>';
+
+                                    $('#divErrorMsg').html(msg);
+                                }
+                                else {
+
+                                    var msg = '<p style="color: red;">';
+                                    msg += 'Could not load users';
+                                    msg += '</p>';
+
+                                    $('#divErrorMsg').html(msg);
+                                }
+
+                                return;
+                            }
+
+                            if (result != null) {
+
+                                var recordCount = data['Result'].length;
+                                //alert(recordCount);
+
+                                if (recordCount > 0) {
+
+                                    var trContents = '';
+
+                                    var sn = 0;
+
+                                    $(data['Result']).each(function (index, value) {
+
+                                        //var sn = value.Sn;
+                                        var userId = value.UserId;
+                                        var firstName = value.FirstName;
+                                        var lastName = value.LastName;
+                                        var email = value.Email;
+                                        var phoneNo = value.PhoneNo;
+                                        var gender = value.Gender;
+                                        var dateOfBirth = value.DateOfBirth;
+                                        var nationalityId = value.NationalityId;
+                                        var userTypeId = value.UserTypeId;
+
+                                        trContents += '<tr>';
+                                        trContents += '<td><input type="checkbox" id="' + userId + '" /></td>';
+                                        trContents += '<td>' + (++sn) + '</td>';
+                                        trContents += '<td>' + firstName + '</td>';
+                                        trContents += '<td>' + lastName + '</td>';
+                                        trContents += '<td>' + email + '</td>';
+                                        trContents += '<td>' + phoneNo + '</td>';
+                                        trContents += '<td>' + gender + '</td>';
+                                        trContents += '<td>' + dateOfBirth + '</td>';
+                                        trContents += '<td>' + nationalityId + '</td>';
+                                        trContents += '<td>' + userTypeId + '</td>';
+
+                                        var deleteUserBtn = '<input type="button" value="Delete" id="btnDeleteUser_' + userId + '" onclick="DeleteUser(' + userId + ')" class="btn btn-danger btn-sm" />';
+                                        var imgWaitForDeleteBtn = '<img src="../img/green_style.gif" alt="wait_img" id="imgWait_DeleteUser_' + userId + '" width="18" height="18" hidden="hidden" />';
+
+                                        var updateUserBtn = '<input type="button" value="Update" id="btnUpdateUser_' + userId + '" onclick="ShowUpdateUserPopUp(' + userId + ')" class="btn btn-primary btn-sm" />';
+                                        var imgWaitForUpdateBtn = '<img src="../img/green_style.gif" alt="wait_img" id="imgWait_UpdateUser_' + userId + '" width="18" height="18" hidden="hidden" />';
+
+                                        trContents += '<td>' + deleteUserBtn + imgWaitForDeleteBtn + updateUserBtn + imgWaitForUpdateBtn + '</td>';
+                                        trContents += '</tr>';
+                                    });
+
+                                    $('#tableBodyUsers').html(trContents);
+                                    //$('#btnFetchAccount').removeAttr('disabled');
+
+                                    $('#btnDeleteSelectedUsers').show();
+
+                                    $('#tableUsers').dataTable({ searching: true, paging: true, info: false });
+                                }
+
+                                //hide image
+                                $('#imgWaitLoadUsers').hide();
+                            }
+
+                        }
+                        catch (e) {
+
+                            //hide image
+                            $('#imgWaitLoadUsers').hide();
+
+                            //alert(e);
+                            var msg = '<p style="color: red;">';
+                            msg += e;
+                            msg += '</p>';
+
+                            $('#divErrorMsg').html(msg);
+                        }
+                    },
+                    error: function (xhr) {
+
+                        //hide image
+                        $('#imgWaitLoadUsers').hide();
+
+                        //alert(xhr.responseText);
+                        var msg = '<p style="color: red;">';
+                        msg += xhr.responseText;
+                        msg += '</p>';
+
+                        $('#divErrorMsg').html(msg);
+                    }
+                });
+            }
+            catch (e) {
+                //hide image
+                $('#imgWaitLoadUsers').hide();
+
+                //alert(e);
+                var msg = '<p style="color: red;">';
+                msg += e;
+                msg += '</p>';
+
+                $('#divErrorMsg').html(msg);
+            }
+        }
+
+        function DeleteUser(userId) {
+
+            if (confirm('Do you want to delete this user?')) {
+
+                try {
+
+                    //show image
+                    $('#imgWait_DeleteUser_' + userId).removeAttr('hidden');
+
+                    jQuery.ajax({
+                        url: '../User/DeleteUser?userId=' + userId,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        type: 'post',
+                        //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                        success: function (data) {
+
+                            try {
+
+                                //alert('Call was successful');
+
+                                var success = data['Success'];
+                                var message = data['Message'];
+                                var result = data['Result'];
+
+                                if (success == false) {
+
+                                    //hide image
+                                    $('#imgWait_DeleteUser_' + userId).attr('hidden', 'hidden');
+
+                                    if (message != null && message != '') {
+
+                                        alert(message);
+
+                                        //var msg = '<p style="color: red;">';
+                                        //msg += message;
+                                        //msg += '</p>';
+
+                                        //$('#divErrorMsg').html(msg);
+                                    }
+                                    else {
+
+                                        alert('Could not delete user!');
+
+                                        //var msg = '<p style="color: red;">';
+                                        //msg += 'Could not load users';
+                                        //msg += '</p>';
+
+                                        //$('#divErrorMsg').html(msg);
+                                    }
+
+                                    return;
+                                }
+
+                                if (success == true && result == 1) {
+
+                                    alert('User deleted!');
+
+                                    //hide image
+                                    $('#imgWait_DeleteUser_' + userId).attr('hidden', 'hidden');
+
+                                    //reload table
+                                    LoadUsers();
+                                }
+
+                            }
+                            catch (e) {
+
+                                //hide image
+                                $('#imgWait_DeleteUser_' + userId).attr('hidden', 'hidden');
+
+                                alert(e);
+
+                                //var msg = '<p style="color: red;">';
+                                //msg += e;
+                                //msg += '</p>';
+
+                                //$('#divErrorMsg').html(msg);
+                            }
+                        },
+                        error: function (xhr) {
+
+                            //hide image
+                            $('#imgWait_DeleteUser_' + userId).attr('hidden', 'hidden');
+
+                            alert(xhr.responseText);
+
+                            //var msg = '<p style="color: red;">';
+                            //msg += xhr.responseText;
+                            //msg += '</p>';
+
+                            //$('#divErrorMsg').html(msg);
+                        }
+                    });
+                }
+                catch (e) {
+                    //hide image
+                    $('#imgWait_DeleteUser_' + userId).attr('hidden', 'hidden');
+
+                    alert(e);
+
+                    //var msg = '<p style="color: red;">';
+                    //msg += e;
+                    //msg += '</p>';
+
+                    //$('#divErrorMsg').html(msg);
+                }
+            }
+
+
+        }
+
+        function ToggleChkBoxSelectAll() {
+            try {
+
+                if ($('#chkBoxSelectAll').is(':checked') == true) {
+
+                    $(':checkbox').each(function () {
+
+                        this.checked = true;
+                    });
+                }
+                else {
+
+                    $(':checkbox').each(function () {
+
+                        this.checked = false;
+                    });
+                }
+            }
+            catch (e) {
+                alert(e);
+            }
+        }
+
+        function DeleteUsers() {
+
+            try {
+
+                //confirm any of the user was selected
+
+                var selectedUsersCount = 0;
+                var userIds = '';
+
+                $(':checkbox').each(function () {
+
+                    if (this.id != 'chkBoxSelectAll') {
+
+                        if ($(this).is(':checked')) {
+
+                            selectedUsersCount++;
+                            userIds += this.id + ',';
+                        }
+                    }
+                });
+
+                if (selectedUsersCount > 0) {
+
+                    if (confirm('Do you want to delete the selected user(s)?')) {
+
+                        //show image
+                        $('#imgWaitDeleteUsers').show();
+
+                        jQuery.ajax({
+                            url: '../User/DeleteUsers?userIds=' + userIds,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: 'json',
+                            type: 'post',
+                            //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                            success: function (data) {
+
+                                try {
+
+                                    //alert('Call was successful');
+
+                                    var success = data['Success'];
+                                    var message = data['Message'];
+                                    var result = data['Result'];
+
+                                    if (success == false) {
+
+                                        //hide image
+                                        $('#imgWaitDeleteUsers').hide()
+
+                                        if (message != null && message != '') {
+
+                                            alert(message);
+
+                                            //var msg = '<p style="color: red;">';
+                                            //msg += message;
+                                            //msg += '</p>';
+
+                                            //$('#divErrorMsg').html(msg);
+                                        }
+                                        else {
+
+                                            alert('Could not delete selected user(s)!');
+
+                                            //var msg = '<p style="color: red;">';
+                                            //msg += 'Could not load users';
+                                            //msg += '</p>';
+
+                                            //$('#divErrorMsg').html(msg);
+                                        }
+
+                                        return;
+                                    }
+
+                                    if (success == true && result == 1) {
+
+                                        alert('User(s) deleted!');
+
+                                        //hide image
+                                        $('#imgWaitDeleteUsers').hide();
+
+                                        //reload table
+                                        LoadUsers();
+
+                                        //uncheck chkBoxSelectAll
+
+                                        $(':checkbox').each(function () {
+
+                                            if (this.id == 'chkBoxSelectAll') {
+
+                                                this.checked = false;
+                                            }
+                                        });
+                                    }
+
+                                }
+                                catch (e) {
+
+                                    //hide image
+                                    $('#imgWaitDeleteUsers').hide();
+
+                                    alert(e);
+
+                                    //var msg = '<p style="color: red;">';
+                                    //msg += e;
+                                    //msg += '</p>';
+
+                                    //$('#divErrorMsg').html(msg);
+                                }
+                            },
+                            error: function (xhr) {
+
+                                //hide image
+                                $('#imgWaitDeleteUsers').hide();
+
+                                alert(xhr.responseText);
+
+                                //var msg = '<p style="color: red;">';
+                                //msg += xhr.responseText;
+                                //msg += '</p>';
+
+                                //$('#divErrorMsg').html(msg);
+                            }
+                        });
+                    }
+                }
+
+            }
+            catch (e) {
+                //hide image
+                $('#imgWaitDeleteUsers').hide();
+
+                alert(e);
+
+                //var msg = '<p style="color: red;">';
+                //msg += e;
+                //msg += '</p>';
+
+                //$('#divErrorMsg').html(msg);
+            }
+        }
+
+        function ClearControls() {
+
+            $('#txtFirstName').val('');
+            $('#txtLastName').val('');
+            $('#txtEmail').val('');
+            $('#txtPhoneNo').val('');
+            $('#drpGender').val('');
+            $('#txtDob').val('');
+            $('#drpNationality').val('');
+            $('#drpUserType').val('');
+        }
+
+        function LoadNationality() {
+
+            try {
+
+                //reset control
+                $('#drpNationality').empty();
+
+                var option = '<option value="">SELECT</option>';
+
+                $('#drpNationality').html(option);
+
+                //show image
+                $('#imgWaitMyModalAddNewUser').removeAttr('hidden');
+
+                $('#drpNationality').empty();
+                $('#divMyModalAddNewUserErrorMsg').empty();
+
+                //$('#btnDeleteSelectedUsers').hide();
+
+                jQuery.ajax({
+                    url: '../Nationality/GetAllNationalities',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'get',
+                    //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                    success: function (data) {
+
+                        try {
+
+                            //alert('Call was successful');
+
+                            var success = data['Success'];
+                            var message = data['Message'];
+                            var result = data['Result'];
+
+                            if (success == false) {
+
+                                //hide image
+                                $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden')
+
+                                if (message != null && message != '') {
+
+                                    //alert(errorMsg);
+                                    var msg = '<p style="color: red;">';
+                                    msg += message;
+                                    msg += '</p>';
+
+                                    $('#divMyModalAddNewUserErrorMsg').html(msg);
+                                }
+                                else {
+
+                                    var msg = '<p style="color: red;">';
+                                    msg += 'Could not nationality';
+                                    msg += '</p>';
+
+                                    $('#divMyModalAddNewUserErrorMsg').html(msg);
+                                }
+
+                                return;
+                            }
+
+                            if (result != null) {
+
+                                var recordCount = data['Result'].length;
+                                //alert(recordCount);
+
+                                if (recordCount > 0) {
+
+                                    var options = '<option value="">SELECT</option>';
+
+                                    var sn = 0;
+
+                                    $(data['Result']).each(function (index, value) {
+
+                                        //var sn = value.Sn;
+                                        var nationalityId = value.NationalityId;
+                                        var nationality = value.Nationality;
+
+                                        options += '<option value="' + nationalityId + '">' + nationality + '</option>';
+                                    });
+
+                                    $('#drpNationality').html(options);
+                                }
+
+                                //hide image
+                                $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+                            }
+
+                        }
+                        catch (e) {
+
+                            //hide image
+                            $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+
+                            //alert(e);
+                            var msg = '<p style="color: red;">';
+                            msg += e;
+                            msg += '</p>';
+
+                            $('#divMyModalAddNewUserErrorMsg').html(msg);
+                        }
+                    },
+                    error: function (xhr) {
+
+                        //hide image
+                        $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+
+                        //alert(xhr.responseText);
+                        var msg = '<p style="color: red;">';
+                        msg += xhr.responseText;
+                        msg += '</p>';
+
+                        $('#divMyModalAddNewUserErrorMsg').html(msg);
+                    }
+                });
+            }
+            catch (e) {
+                //hide image
+                $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+
+                //alert(e);
+                var msg = '<p style="color: red;">';
+                msg += e;
+                msg += '</p>';
+
+                $('#divMyModalAddNewUserErrorMsg').html(msg);
+            }
+        }
+
+        function LoadUserType() {
+
+            try {
+
+                //reset control
+                $('#drpUserType').empty();
+
+                var option = '<option value="">SELECT</option>';
+
+                $('#drpUserType').html(option);
+
+                //show image
+                $('#imgWaitMyModalAddNewUser').removeAttr('hidden');
+
+                $('#drpUserType').empty();
+                $('#divMyModalAddNewUserErrorMsg').empty();
+
+                //$('#btnDeleteSelectedUsers').hide();
+
+                jQuery.ajax({
+                    url: '../UserType/GetAllUserType',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'get',
+                    //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                    success: function (data) {
+
+                        try {
+
+                            //alert('Call was successful');
+
+                            var success = data['Success'];
+                            var message = data['Message'];
+                            var result = data['Result'];
+
+                            if (success == false) {
+
+                                //hide image
+                                $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden')
+
+                                if (message != null && message != '') {
+
+                                    //alert(errorMsg);
+                                    var msg = '<p style="color: red;">';
+                                    msg += message;
+                                    msg += '</p>';
+
+                                    $('#divMyModalAddNewUserErrorMsg').html(msg);
+                                }
+                                else {
+
+                                    var msg = '<p style="color: red;">';
+                                    msg += 'Could not nationality';
+                                    msg += '</p>';
+
+                                    $('#divMyModalAddNewUserErrorMsg').html(msg);
+                                }
+
+                                return;
+                            }
+
+                            if (result != null) {
+
+                                var recordCount = data['Result'].length;
+                                //alert(recordCount);
+
+                                if (recordCount > 0) {
+
+                                    var options = '<option value="">SELECT</option>';
+
+                                    var sn = 0;
+
+                                    $(data['Result']).each(function (index, value) {
+
+                                        //var sn = value.Sn;
+                                        var userTypeId = value.UserTypeId;
+                                        var userTypeName = value.UserTypeName;
+
+                                        options += '<option value="' + userTypeId + '">' + userTypeName + '</option>';
+                                    });
+
+                                    $('#drpUserType').html(options);
+                                }
+
+                                //hide image
+                                $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+                            }
+
+                        }
+                        catch (e) {
+
+                            //hide image
+                            $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+
+                            //alert(e);
+                            var msg = '<p style="color: red;">';
+                            msg += e;
+                            msg += '</p>';
+
+                            $('#divMyModalAddNewUserErrorMsg').html(msg);
+                        }
+                    },
+                    error: function (xhr) {
+
+                        //hide image
+                        $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+
+                        //alert(xhr.responseText);
+                        var msg = '<p style="color: red;">';
+                        msg += xhr.responseText;
+                        msg += '</p>';
+
+                        $('#divMyModalAddNewUserErrorMsg').html(msg);
+                    }
+                });
+            }
+            catch (e) {
+                //hide image
+                $('#imgWaitMyModalAddNewUser').attr('hidden', 'hidden');
+
+                //alert(e);
+                var msg = '<p style="color: red;">';
+                msg += e;
+                msg += '</p>';
+
+                $('#divMyModalAddNewUserErrorMsg').html(msg);
+            }
+        }
+
+        function ShowAddNewUserPopUp() {
+
+            ClearControls();
+            LoadNationality();
+            LoadUserType();
+
+            $('#myModal_AddNewUser').modal('show');
+        }
+
+        function AddUser() {
+
+            try {
+
+                //validate controls
+                var firstName = $('#txtFirstName').val();
+                var lastName = $('#txtLastName').val();
+                var email = $('#txtEmail').val();
+                var phoneNo = $('#txtPhoneNo').val();
+                var gender = $('#drpGender').val();
+                var dob = $('#txtDob').val();
+                var nationality = $('#drpNationality').val();
+                var userType = $('#drpUserType').val();
+
+                var msg = '';
+
+                if (firstName == '')
+                    msg += 'First name is required\n';
+
+                if (lastName == '')
+                    msg += 'Last name is required\n';
+
+                if (email == '')
+                    msg += 'Email is required\n';
+
+                if (phoneNo == '')
+                    msg += 'Phone No is required\n';
+
+                if (gender == '')
+                    msg += 'Gender is required\n';
+
+                if (dob == '')
+                    msg += 'Date of birth is required\n';
+
+                if (nationality == '')
+                    msg += 'Nationality is required\n';
+
+                if (userType == '')
+                    msg += 'User type is required\n';
+
+                if (msg != '') {
+                    alert(msg);
+
+                    return;
+                }
+
+                if (confirm('Do you want to create this user?')) {
+
+                    //show image
+                    $('#imgWaitAddUser').removeAttr('hidden');
+
+                    jQuery.ajax({
+                        url: '../User/AddUser?dateOfBirth=' + dob + '&email=' + email + '&firstName=' + firstName + '&gender=' + gender + '&lastName=' + lastName + '&nationalityId=' + nationality + '&phoneNo=' + phoneNo + '&userTypeId=' + userType,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        type: 'post',
+                        //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                        success: function (data) {
+
+                            try {
+
+                                //alert('Call was successful');
+
+                                var success = data['Success'];
+                                var message = data['Message'];
+                                var result = data['Result'];
+
+                                if (success == false) {
+
+                                    //hide image
+                                    $('#imgWaitAddUser').attr('hidden', 'hidden');
+
+                                    if (message != null && message != '') {
+
+                                        alert(message);
+
+                                        //var msg = '<p style="color: red;">';
+                                        //msg += message;
+                                        //msg += '</p>';
+
+                                        //$('#divErrorMsg').html(msg);
+                                    }
+                                    else {
+
+                                        alert('Could not create user!');
+
+                                        //var msg = '<p style="color: red;">';
+                                        //msg += 'Could not load users';
+                                        //msg += '</p>';
+
+                                        //$('#divErrorMsg').html(msg);
+                                    }
+
+                                    return;
+                                }
+
+                                if (success == true && result > 0) {
+
+                                    alert('User created!');
+
+                                    //hide image
+                                    $('#imgWaitAddUser').attr('hidden', 'hidden');
+
+                                    //clear controls
+                                    ClearControls();
+
+                                    //hide pop up
+                                    $('#myModal_AddNewUser').modal('hide');
+
+                                    //reload table
+                                    LoadUsers();
+                                }
+
+                            }
+                            catch (e) {
+
+                                //hide image
+                                $('#imgWaitAddUser').attr('hidden', 'hidden');
+
+                                alert(e);
+
+                                //var msg = '<p style="color: red;">';
+                                //msg += e;
+                                //msg += '</p>';
+
+                                //$('#divErrorMsg').html(msg);
+                            }
+                        },
+                        error: function (xhr) {
+
+                            //hide image
+                            $('#imgWaitAddUser').attr('hidden', 'hidden');
+
+                            alert(xhr.responseText);
+
+                            //var msg = '<p style="color: red;">';
+                            //msg += xhr.responseText;
+                            //msg += '</p>';
+
+                            //$('#divErrorMsg').html(msg);
+                        }
+                    });
+                }
+
+
+            }
+            catch (e) {
+                //hide image
+                $('#imgWaitAddUser').attr('hidden', 'hidden');
+
+                alert(e);
+
+                //var msg = '<p style="color: red;">';
+                //msg += e;
+                //msg += '</p>';
+
+                //$('#divErrorMsg').html(msg);
+            }
+
+
+        }
+
+        function ClearControls_UpdateUser() {
+
+            $('#txtFirstName_UpdateUser').val('');
+            $('#txtLastName_UpdateUser').val('');
+            $('#txtEmail_UpdateUser').val('');
+            $('#txtPhoneNo_UpdateUser').val('');
+            $('#drpGender_UpdateUser').val('');
+            $('#txtDob_UpdateUser').val('');
+            $('#drpNationality_UpdateUser').val('');
+            $('#drpUs_UpdateUsererType').val('');
+        }
+
+        function LoadNationalityForExistingUser(userId) {
+
+            try {
+
+                //reset control
+                $('#drpNationality_UpdateUser').empty();
+
+                var option = '<option value="">SELECT</option>';
+
+                $('#drpNationality_UpdateUser').html(option);
+
+                //show image
+                $('#imgWait_UpdateUser_' + userId).removeAttr('hidden');
+
+                $('#drpNationality_UpdateUser').empty();
+                $('#divMyModalUpdateUserErrorMsg').empty();
+
+                //$('#btnDeleteSelectedUsers').hide();
+
+                jQuery.ajax({
+                    url: '../Nationality/GetAllNationalities',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'get',
+                    //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                    success: function (data) {
+
+                        try {
+
+                            //alert('Call was successful');
+
+                            var success = data['Success'];
+                            var message = data['Message'];
+                            var result = data['Result'];
+
+                            if (success == false) {
+
+                                //hide image
+                                $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden')
+
+                                if (message != null && message != '') {
+
+                                    //alert(errorMsg);
+                                    var msg = '<p style="color: red;">';
+                                    msg += message;
+                                    msg += '</p>';
+
+                                    $('#divMyModalUpdateUserErrorMsg').html(msg);
+                                }
+                                else {
+
+                                    var msg = '<p style="color: red;">';
+                                    msg += 'Could not nationality';
+                                    msg += '</p>';
+
+                                    $('#divMyModalUpdateUserErrorMsg').html(msg);
+                                }
+
+                                return;
+                            }
+
+                            if (result != null) {
+
+                                var recordCount = data['Result'].length;
+                                //alert(recordCount);
+
+                                if (recordCount > 0) {
+
+                                    var options = '<option value="">SELECT</option>';
+
+                                    var sn = 0;
+
+                                    $(data['Result']).each(function (index, value) {
+
+                                        //var sn = value.Sn;
+                                        var nationalityId = value.NationalityId;
+                                        var nationality = value.Nationality;
+
+                                        options += '<option value="' + nationalityId + '">' + nationality + '</option>';
+                                    });
+
+                                    $('#drpNationality_UpdateUser').html(options);
+                                }
+
+                                //hide image
+                                $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+                            }
+
+                        }
+                        catch (e) {
+
+                            //hide image
+                            $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+
+                            //alert(e);
+                            var msg = '<p style="color: red;">';
+                            msg += e;
+                            msg += '</p>';
+
+                            $('#divMyModalUpdateUserErrorMsg').html(msg);
+                        }
+                    },
+                    error: function (xhr) {
+
+                        //hide image
+                        $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+
+                        //alert(xhr.responseText);
+                        var msg = '<p style="color: red;">';
+                        msg += xhr.responseText;
+                        msg += '</p>';
+
+                        $('#divMyModalUpdateUserErrorMsg').html(msg);
+                    }
+                });
+            }
+            catch (e) {
+                //hide image
+                $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+
+                //alert(e);
+                var msg = '<p style="color: red;">';
+                msg += e;
+                msg += '</p>';
+
+                $('#divMyModalUpdateUserErrorMsg').html(msg);
+            }
+        }
+
+        function LoadUserTypeForExistingUser(userId) {
+
+            try {
+
+                //reset control
+                $('#drpUserType_UpdateUser').empty();
+
+                var option = '<option value="">SELECT</option>';
+
+                $('#drpUserType_UpdateUser').html(option);
+
+                //show image
+                $('#imgWait_UpdateUser_' + userId).removeAttr('hidden');
+
+                $('#drpUserType_UpdateUser').empty();
+                $('#divMyModalUpdateUserErrorMsg').empty();
+
+                //$('#btnDeleteSelectedUsers').hide();
+
+                jQuery.ajax({
+                    url: '../UserType/GetAllUserType',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'get',
+                    //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                    success: function (data) {
+
+                        try {
+
+                            //alert('Call was successful');
+
+                            var success = data['Success'];
+                            var message = data['Message'];
+                            var result = data['Result'];
+
+                            if (success == false) {
+
+                                //hide image
+                                $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden')
+
+                                if (message != null && message != '') {
+
+                                    //alert(errorMsg);
+                                    var msg = '<p style="color: red;">';
+                                    msg += message;
+                                    msg += '</p>';
+
+                                    $('#divMyModalUpdateUserErrorMsg').html(msg);
+                                }
+                                else {
+
+                                    var msg = '<p style="color: red;">';
+                                    msg += 'Could not nationality';
+                                    msg += '</p>';
+
+                                    $('#divMyModalUpdateUserErrorMsg').html(msg);
+                                }
+
+                                return;
+                            }
+
+                            if (result != null) {
+
+                                var recordCount = data['Result'].length;
+                                //alert(recordCount);
+
+                                if (recordCount > 0) {
+
+                                    var options = '<option value="">SELECT</option>';
+
+                                    var sn = 0;
+
+                                    $(data['Result']).each(function (index, value) {
+
+                                        //var sn = value.Sn;
+                                        var userTypeId = value.UserTypeId;
+                                        var userTypeName = value.UserTypeName;
+
+                                        options += '<option value="' + userTypeId + '">' + userTypeName + '</option>';
+                                    });
+
+                                    $('#drpUserType_UpdateUser').html(options);
+                                }
+
+                                //hide image
+                                $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+                            }
+
+                        }
+                        catch (e) {
+
+                            //hide image
+                            $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+
+                            //alert(e);
+                            var msg = '<p style="color: red;">';
+                            msg += e;
+                            msg += '</p>';
+
+                            $('#divMyModalUpdateUserErrorMsg').html(msg);
+                        }
+                    },
+                    error: function (xhr) {
+
+                        //hide image
+                        $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+
+                        //alert(xhr.responseText);
+                        var msg = '<p style="color: red;">';
+                        msg += xhr.responseText;
+                        msg += '</p>';
+
+                        $('#divMyModalUpdateUserErrorMsg').html(msg);
+                    }
+                });
+            }
+            catch (e) {
+                //hide image
+                $('#imgWait_UpdateUser_' + userId).attr('hidden', 'hidden');
+
+                //alert(e);
+                var msg = '<p style="color: red;">';
+                msg += e;
+                msg += '</p>';
+
+                $('#divMyModalUpdateUserErrorMsg').html(msg);
+            }
+        }
+
+        function LoadExistingUser(userId) {
+
+            try {
+
+                //show image
+                $('#imgWait_UpdateUser_' + userId).show();
+
+                //$('#tableBodyUsers').empty();
+                $('#divMyModalUpdateUserErrorMsg').empty();
+
+                //$('#btnDeleteSelectedUsers').hide();
+
+                jQuery.ajax({
+                    url: '../User/GetUserById?userId=' + userId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'get',
+                    //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                    success: function (data) {
+
+                        try {
+
+                            //alert('Call was successful');
+
+                            var success = data['Success'];
+                            var message = data['Message'];
+                            var result = data['Result'];                           
+
+                            if (success == false) {
+
+                                //hide image
+                                $('#imgWait_UpdateUser_' + userId).hide();
+
+                                if (message != null && message != '') {
+
+                                    //alert(errorMsg);
+                                    var msg = '<p style="color: red;">';
+                                    msg += message;
+                                    msg += '</p>';
+
+                                    $('#divMyModalUpdateUserErrorMsg').html(msg);
+                                }
+                                else {
+
+                                    var msg = '<p style="color: red;">';
+                                    msg += 'Could not load user';
+                                    msg += '</p>';
+
+                                    $('#divMyModalUpdateUserErrorMsg').html(msg);
+                                }
+
+                                return;
+                            }
+
+                            if (result != null) {
+
+                                var userId = data.Result.UserId;
+                                var firstName = data.Result.FirstName;
+                                var lastName = data.Result.LastName;
+                                var email = data.Result.Email;
+                                var phoneNo = data.Result.PhoneNo;
+                                var gender = data.Result.Gender;
+                                var dateOfBirth = data.Result.DateOfBirth;
+                                var nationalityId = data.Result.NationalityId;
+                                var userTypeId = data.Result.UserTypeId;
+
+                                $('#txtFirstName_UpdateUser').val(firstName);
+                                $('#txtLastName_UpdateUser').val(lastName);
+                                $('#txtEmail_UpdateUser').val(email);
+                                $('#txtPhoneNo_UpdateUser').val(phoneNo);
+                                $('#drpGender_UpdateUser').val(gender);
+                                $('#txtDob_UpdateUser').val(dateOfBirth);
+                                $('#drpNationality_UpdateUser').val(nationalityId);
+                                $('#drpUserType_UpdateUser').val(userTypeId);
+
+                                //alert(nationalityId);
+
+                                //hide image
+                                $('#imgWait_UpdateUser_' + userId).hide();
+                            }
+                        }
+                        catch (e) {
+
+                            //hide image
+                            $('#imgWait_UpdateUser_' + userId).hide();
+
+                            //alert(e);
+                            var msg = '<p style="color: red;">';
+                            msg += e;
+                            msg += '</p>';
+
+                            $('#divMyModalUpdateUserErrorMsg').html(msg);
+                        }
+                    },
+                    error: function (xhr) {
+
+                        //hide image
+                        $('#imgWait_UpdateUser_' + userId).hide();
+
+                        //alert(xhr.responseText);
+                        var msg = '<p style="color: red;">';
+                        msg += xhr.responseText;
+                        msg += '</p>';
+
+                        $('#divMyModalUpdateUserErrorMsg').html(msg);
+                    }
+                });
+            }
+            catch (e) {
+                //hide image
+                $('#imgWait_UpdateUser_' + userId).hide();
+
+                //alert(e);
+                var msg = '<p style="color: red;">';
+                msg += e;
+                msg += '</p>';
+
+                $('#divMyModalUpdateUserErrorMsg').html(msg);
+            }
+        }
+
+        function ShowUpdateUserPopUp(userId) {
+
+            ClearControls_UpdateUser();
+            LoadNationalityForExistingUser(userId);
+            LoadUserTypeForExistingUser(userId);
+            LoadExistingUser(userId);
+
+            $('#hiddenUserId').val(userId);
+
+            $('#myModal_UpdateUser').modal('show');
+        }
+
+        function UpdateUser() {
+
+            try {
+
+                //validate controls
+                var firstName = $('#txtFirstName_UpdateUser').val();
+                var lastName = $('#txtLastName_UpdateUser').val();
+                var email = $('#txtEmail_UpdateUser').val();
+                var phoneNo = $('#txtPhoneNo_UpdateUser').val();
+                var gender = $('#drpGender_UpdateUser').val();
+                var dob = $('#txtDob_UpdateUser').val();
+                var nationality = $('#drpNationality_UpdateUser').val();
+                var userType = $('#drpUserType_UpdateUser').val();
+                var userId = $('#hiddenUserId').val();               
+
+                var msg = '';
+
+                if (firstName == '')
+                    msg += 'First name is required\n';
+
+                if (lastName == '')
+                    msg += 'Last name is required\n';
+
+                if (email == '')
+                    msg += 'Email is required\n';
+
+                if (phoneNo == '')
+                    msg += 'Phone No is required\n';
+
+                if (gender == '')
+                    msg += 'Gender is required\n';
+
+                if (dob == '')
+                    msg += 'Date of birth is required\n';
+
+                if (nationality == '')
+                    msg += 'Nationality is required\n';
+
+                if (userType == '')
+                    msg += 'User type is required\n';
+
+                if (userId == null || userId == 0)
+                    msg += 'User id is required\n';
+
+                if (msg != '') {
+                    alert(msg);
+
+                    return;
+                }
+
+                if (confirm('Do you want to create this user?')) {
+
+                    //show image
+                    $('#imgWaitUpdateUser').removeAttr('hidden');
+
+                    jQuery.ajax({
+                        url: '../User/UpdateUser?userId=' + userId + '&dateOfBirth=' + dob + '&email=' + email + '&firstName=' + firstName + '&gender=' + gender + '&lastName=' + lastName + '&nationalityId=' + nationality + '&phoneNo=' + phoneNo + '&userTypeId=' + userType,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        type: 'post',
+                        //async: false, //this will make ajax call to assign values to variable that you can use outside the ajax declaration. The downside is that it will make ajax call to be a lot slower
+                        success: function (data) {
+
+                            try {
+
+                                //alert('Call was successful');
+
+                                var success = data['Success'];
+                                var message = data['Message'];
+                                var result = data['Result'];
+
+                                if (success == false) {
+
+                                    //hide image
+                                    $('#imgWaitUpdateUser').attr('hidden', 'hidden');
+
+                                    if (message != null && message != '') {
+
+                                        alert(message);
+
+                                        //var msg = '<p style="color: red;">';
+                                        //msg += message;
+                                        //msg += '</p>';
+
+                                        //$('#divErrorMsg').html(msg);
+                                    }
+                                    else {
+
+                                        alert('Could not update user!');
+
+                                        //var msg = '<p style="color: red;">';
+                                        //msg += 'Could not load users';
+                                        //msg += '</p>';
+
+                                        //$('#divErrorMsg').html(msg);
+                                    }
+
+                                    return;
+                                }
+
+                                if (success == true && result > 0) {
+
+                                    alert('User update!');
+
+                                    //hide image
+                                    $('#imgWaitUpdateUser').attr('hidden', 'hidden');
+
+                                    //clear controls
+                                    ClearControls_UpdateUser();
+
+                                    //hide pop up
+                                    $('#myModal_UpdateUser').modal('hide');
+
+                                    //reload table
+                                    LoadUsers();
+                                }
+
+                            }
+                            catch (e) {
+
+                                //hide image
+                                $('#imgWaitUpdateUser').attr('hidden', 'hidden');
+
+                                alert(e);
+
+                                //var msg = '<p style="color: red;">';
+                                //msg += e;
+                                //msg += '</p>';
+
+                                //$('#divErrorMsg').html(msg);
+                            }
+                        },
+                        error: function (xhr) {
+
+                            //hide image
+                            $('#imgWaitUpdateUser').attr('hidden', 'hidden');
+
+                            alert(xhr.responseText);
+
+                            //var msg = '<p style="color: red;">';
+                            //msg += xhr.responseText;
+                            //msg += '</p>';
+
+                            //$('#divErrorMsg').html(msg);
+                        }
+                    });
+                }
+
+
+            }
+            catch (e) {
+                //hide image
+                $('#imgWaitUpdateUser').attr('hidden', 'hidden');
+
+                alert(e);
+
+                //var msg = '<p style="color: red;">';
+                //msg += e;
+                //msg += '</p>';
+
+                //$('#divErrorMsg').html(msg);
+            }
+
+
+        }
+
+    </script>
+}
